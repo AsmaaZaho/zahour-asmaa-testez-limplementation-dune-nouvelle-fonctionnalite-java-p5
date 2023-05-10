@@ -11,7 +11,7 @@ public class ParkingSpot {
         this.number = number;
         this.parkingType = parkingType;
         this.isAvailable = isAvailable;
-    }
+    } 
 
     public int getId() {
         return number;

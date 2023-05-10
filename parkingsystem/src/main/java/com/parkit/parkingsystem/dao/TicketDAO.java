@@ -18,7 +18,7 @@ public class TicketDAO {
     private static final Logger logger = LogManager.getLogger("TicketDAO");
 
     public DataBaseConfig dataBaseConfig = new DataBaseConfig();
-
+   
     public boolean saveTicket(Ticket ticket){
         Connection con = null;
         try {
@@ -34,9 +34,10 @@ public class TicketDAO {
             return ps.execute();
         }catch (Exception ex){
             logger.error("Error fetching next available slot",ex);
-        }finally {
-            dataBaseConfig.closeConnection(con);
             return false;
+        }finally{
+            dataBaseConfig.closeConnection(con);
+            return true;
         }
     }
 
@@ -85,5 +86,33 @@ public class TicketDAO {
             dataBaseConfig.closeConnection(con);
         }
         return false;
+    }
+
+    public int getNbTicket(Ticket ticket){
+        Connection con = null;
+        int ticketCount = 0;
+        try{
+            //returns a connection object that allows us to interact with the database
+            con = dataBaseConfig.getConnection();
+            //execute the SQL query string GET_NUMBER_TICKET and retrieve the results
+            PreparedStatement stmt = con.prepareStatement(DBConstants.GET_NUMBER_TICKET);
+            //By setting the value of the String getVehicleRegNumber, we are providing input data
+            stmt.setString(1, ticket.getVehicleRegNumber());
+            //execute a SELECT SQL statement and retrieve the resulting data from the database
+            ResultSet rs = stmt.executeQuery();
+            /*
+              if there is a next row in rs, it assumes that the first column of rs,
+              contains an integer value and it is ticketCount.
+            */
+            if (rs.next()){
+                ticketCount = rs.getInt(1);
+            }
+            return ticketCount;
+        }catch(Exception ex){
+            logger.error("Error result not found ",ex);
+        }finally{
+            dataBaseConfig.closeConnection(con);
+        }
+        return ticketCount;
     }
 }
